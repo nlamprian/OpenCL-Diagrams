@@ -1,0 +1,78 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  \def\xcell{0.5cm}
+  \def\ycell{0.8cm}
+  \def\dist{1.9*\ycell}
+  \def\radius{2.7mm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.5pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=2pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % ===========================================================================
+
+  % Draw input
+  \table*{0}{(0,0)}{30}{1}{}[fill=Emerald!50]
+
+  % Draw group declarative lines
+  \draw[inner sep=0pt,line width=2pt,RedOrange!70] ($(table-0.south west)+(1mm,-1.5mm)$) -- node[midway] (line-0) {} ++($(10*\xcell,0)+(-2mm,0)$);
+  \draw[inner sep=0pt,line width=2pt,RoyalBlue!60] ($(table-0.south west)+(1mm+10*\xcell,-1.5mm)$) -- node[midway] (line-1) {} ++($(10*\xcell,0)+(-4mm,0)$);
+  \draw[inner sep=0pt,line width=2pt,Plum!60] ($(table-0.south west)+(4mm+20*\xcell,-1.5mm)$) -- node[midway] (line-2) {} ++($(10*\xcell,0)+(-5mm,0)$);
+  \node[Red] at ($(line-1)!0.506!(line-2)$) {\Large\bfseries...};
+
+  % Draw local histograms
+  \table*{1}{($(line-0)+(-1.5*\xcell-2mm,-\dist)$)}{7}{1}{}[fill=RedOrange!70]
+  \table*{2}{($(line-1)+(-3.5*\xcell,-\dist)$)}{7}{1}{}[fill=RoyalBlue!60]
+  \table*{3}{($(line-2)+(-5.5*\xcell+2mm,-\dist)$)}{7}{1}{}[fill=Plum!60]
+  \draw[to,RedOrange!70] (line-0) -- (table-1);
+  \draw[to,RoyalBlue!60] (line-1) -- (table-2);
+  \draw[to,Plum!60] (line-2) -- (table-3);
+
+  % Draw output
+  \table*{4}{($(table-2.south)+(0,-2*\dist)$)}{7}{1}{}[fill=Emerald!50,anchor=north]
+  
+  % Draw adder
+  \node (mid-dist) at ($(table-2.south)+(0,-\dist)$) {};
+  \draw[line width=1.5pt,fill=Yellow!80] (mid-dist) circle (\radius);
+  \draw[line width=1.5pt] ($(mid-dist)+(180:\radius-1.3mm)$) -- ($(mid-dist)+(0:\radius-1.3mm)$);
+  \draw[line width=1.5pt] ($(mid-dist)+(-90:\radius-1.3mm)$) -- ($(mid-dist)+(90:\radius-1.3mm)$);
+  \draw[to,shorten <=2.5pt,RedOrange!70] (table-1.south) -- ($(mid-dist)+(150:\radius+0.1mm)$);
+  \draw[to,RoyalBlue!60] (table-2.south) -- ($(mid-dist)+(90:\radius+0.1mm)$);
+  \draw[to,shorten <=2.5pt,Plum!60] (table-3.south) -- ($(mid-dist)+(30:\radius+0.1mm)$);
+  \draw[to,Emerald!70!Gray!70!White] ($(mid-dist)+(-90:\radius+0.4mm)$) -- (table-4.north);
+
+  % Draw labels
+  \node[draw=none,anchor=east] at ($(table-0.west)+(-0.3,0.0)$) {\sffamily\bfseries{in}};
+  \node[draw=none,anchor=east] at ($(table-1.west)+(-0.3,0.0)$) {\sffamily\bfseries{local}};
+  \node[draw=none,anchor=east] at ($(table-4.west)+(-0.3,0.0)$) {\sffamily\bfseries{out}};
+
+\end{tikzpicture}
+\caption{Representation of histogram.}
+\label{fig:histogram}
+\end{figure}

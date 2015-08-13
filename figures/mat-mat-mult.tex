@@ -1,0 +1,79 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=0.9,transform shape]
+
+  % Parameters
+  \def\xcell{0.6cm}
+  \def\ycell{0.6cm}
+  \def\tabshift{8cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{shade-lines}=[draw,thick,anchor=north west,fill=gray,opacity=0.3,pattern=north west lines,text centered]
+  \tikzstyle{shade-fill}=[draw,thick,anchor=north west,fill=gray,opacity=0.3,text centered]
+  \tikzstyle{line}=[dashed,line width=0.5pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=4pt,shorten >=4pt,line width=2pt,Red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \shade*{<id>}{<pos>}{<x-cells>}{<y-cells>}[<optional-arguments>]
+  % The star (*) argument chooses a shading style
+  \DeclareDocumentCommand \shade { s m m m m O{} }{%
+    \path #3 node[\IfBooleanTF{#1}{shade-fill}{shade-lines},minimum width=#4*\xcell,minimum height=#5*\ycell,#6] (shade-#2) {};
+  }
+
+  % ===========================================================================
+
+  % Draw tables
+  \table*{0}{(0,0)}{12}{12}{}[fill=Emerald!50]
+  \table*{1}{(\tabshift,0)}{12}{12}{}[fill=Emerald!50]
+  \table*{2}{(\tabshift,-\tabshift)}{12}{12}{}[fill=Emerald!50]
+
+  % Draw shades
+  \shade{0}{($(table-0.north west)+(0,-4*\ycell+0.2mm)$)}{12}{4}
+  \shade{1}{($(table-1.north west)+(4*\xcell-0.2mm,-4*\ycell+0.2mm)$)}{4}{4}
+  \shade{2}{($(table-2.north west)+(4*\xcell-0.2mm,0)$)}{4}{12}
+  \shade*{3}{($(table-0.north west)+(0,-4*\ycell+0.2mm)$)}{4}{4}[opacity=0.4]
+  \shade*{4}{($(table-1.north west)+(4*\xcell-0.2mm,-4*\ycell+0.2mm)$)}{4}{4}[opacity=0.4]
+  \shade*{5}{($(table-2.north west)+(4*\xcell-0.2mm,0)$)}{4}{4}[opacity=0.4]
+
+  % Draw support lines
+  \draw[line,line width=1.1pt] ($(shade-0.north east)+(0,-0.2mm)$) -- ($(shade-4.north west)+(0,-0.2mm)$);
+  \draw[line,line width=1.1pt] ($(shade-0.south east)+(0,0.1mm)$) -- ($(shade-4.south west)+(0,0.1mm)$);
+  \draw[line,line width=1.1pt] ($(shade-4.south west)+(0.1mm,0)$) -- ($(shade-2.north west)+(0.1mm,0)$);
+  \draw[line,line width=1.1pt] ($(shade-4.south east)+(-0.1mm,0)$) -- ($(shade-2.north east)+(-0.1mm,0)$);
+
+  % Draw arrows
+  \draw[to] ($(table-0.west)+(2.8*\xcell,0)$) -- ++(3*\xcell,0);
+  \draw[to] ($(table-2.north)+(0,-2.8*\ycell)$) -- ++(0,-3*\ycell);
+
+  % Draw labels
+  \node[above right,shift={(2mm,2mm)},scale=1.4,Red] at (table-0.south west) {\sffamily\bfseries\LARGE A};
+  \node[above right,shift={(2mm,2mm)},scale=1.4,Red] at (table-2.south west) {\sffamily\bfseries\LARGE B};
+  \node[above right,shift={(2mm,2mm)},scale=1.4,Red] at (table-1.south west) {\sffamily\bfseries\LARGE C};
+
+\end{tikzpicture}
+\caption{Representation of matrix-matrix multiplication.}
+\label{fig:mat-mat-mult}
+\end{figure}

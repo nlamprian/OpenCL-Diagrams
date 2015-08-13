@@ -1,0 +1,61 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=0.8,transform shape]
+
+  % Parameters
+  \def\pesep{0.75}
+
+  % Styles
+  \tikzstyle{every node}=[draw,rounded corners,text centered]
+  \tikzstyle{host}=[thick,fill=TealBlue!80,text width=12em,minimum width=12em,minimum height=9em,inner sep=0.3cm]
+  \tikzstyle{dev}=[thick,fill=Yellow!70,text width=12em,minimum width=21.3em,inner sep=0.4cm]
+  \tikzstyle{unit}=[fill=RoyalBlue!80,text width=12em,minimum width=14em,inner sep=0.3cm]
+  \tikzstyle{pe}=[fill=Maroon!25!Red,minimum width=2em,minimum height=4em,inner sep=0.3cm]
+  \tikzstyle{line}=[line width=3pt,rounded corners]
+
+  % \<dev/unit/pe>{<id>}{<label>}
+  \newcommand{\dev}[2]{node[dev] (#1) {\sffamily\bfseries\Large{#2}}}
+  \newcommand{\unit}[2]{node[unit] (#1) {\sffamily\bfseries\large{#2}}}
+  \newcommand{\pe}[2]{node[pe] (#1) {\sffamily\bfseries{#2}}}
+  
+  % \cunit{<id>}{<origin>}{<shift>}
+  \newcommand{\cunit}[3]{%
+    \path[shift={#3}] ($#2+(3.3,-2.55)$) \unit{compute-unit-#1-0}{Compute Unit\vspace{1.7cm}};
+    \path[shift={#3}] (compute-unit-#1-0.south west) +(0.8,1.0)  \pe{pe-#1-0}{PE};
+    \path[shift={#3}] (pe-#1-0.east)+(\pesep,0) \pe{pe-#1-1}{PE};
+    \node[draw=none] (dots-#1-0) at ($(pe-#1-1.east)+(\pesep,0)$) {$\bm\cdots$};
+    \path (dots-#1-0.east)+(\pesep,0) \pe{pe-#1-2}{PE};
+  }
+
+  % \cdev{<id>}{<shift>}
+  \newcommand{\cdev}[2]{%
+    \path[shift={#2}] (0,0) \dev{dev-#1}{Device\vspace{4.8cm}};
+    \cunit{#1-0}{($(dev-#1.north west)+(0.0, 0.0)$)}{#2}
+    \cunit{#1-1}{($(dev-#1.north west)+(0.8,-0.8)$)}{#2}
+    \cunit{#1-2}{($(dev-#1.north west)+(1.6,-1.6)$)}{#2}
+  }
+
+  % ===========================================================================
+ 
+  % Draw devices
+  \cdev{0}{(0.0, 0.0 )}
+  \cdev{1}{(2.2,-1.25)}
+  \cdev{2}{(4.4,-2.5 )}
+
+  % Draw host
+  \node[host] (host) at ($(dev-1.west)+(-10.0,0.0)$) {\sffamily\bfseries\huge{Host}};
+    
+  % Draw interconnect
+  \draw[line] (host.east) -- ++(3.5,0.0);
+  \draw[line] ($(host.east)+(3.5,0.0)$) -- ++(-2.2,1.25) -- (dev-0.west);
+  \draw[line] ($(host.east)+(3.5,0.0)$) -- (dev-1.west);
+  \draw[line] ($(host.east)+(3.5,0.0)$) -- ++($0.2*(2.2,-1.25)$);
+  \draw[line,dashed] ($(host.east)+(3.5,0.0)$) -- ++($0.7*(2.2,-1.25)$);
+  \draw[line] ($(host.east)+(3.5,0.0)+0.7*(2.2,-1.25)$) -- ($(host.east)+(3.5,0.0)+(2.2,-1.25)$) -- (dev-2.west);
+
+\end{tikzpicture}
+\caption{OpenCL abstract hardware model.}
+\label{fig:hardware-model}
+\end{figure}

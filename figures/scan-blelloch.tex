@@ -1,0 +1,101 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=0.9,transform shape]
+
+  % Parameters
+  \def\xcell{1.7cm}
+  \def\ycell{0.8cm}
+  \def\dtab{2.4cm}
+  \def\radius{0.2cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=1.5pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \adderup{<top-table-id>}{<bottom-table-id>}{<main-cell>}{<secondary-cell>}
+  \DeclareDocumentCommand \adderup { m m m m }{%
+    \node (mid-dist) at ($(table-#1.south west)!0.5!(table-#2.north west)+(0.5*\xcell+#3*\xcell,0)$) {};
+    \draw[line width=1.5pt,fill=Yellow!80] (mid-dist) circle (\radius);
+    \draw[line width=1.2pt] ($(mid-dist)+(180:\radius-1mm)$) -- ($(mid-dist)+(0:\radius-1mm)$);
+    \draw[line width=1.2pt] ($(mid-dist)+(-90:\radius-1mm)$) -- ($(mid-dist)+(90:\radius-1mm)$);
+    \draw[to] (table-#1.south -| mid-dist) -- ($(mid-dist)+(0,\radius)$);
+    \draw[to] ($(mid-dist)+(0,{-\radius-0.02cm})$) -- (mid-dist |- table-#2.north);
+    \draw[to] ($(table-#1.south west)+({0.5*\xcell+#4*\xcell},-0.02)$) -- ($(mid-dist)+(160:\radius)$);
+  }
+
+  % \adderdown{<top-table-id>}{<bottom-table-id>}{<main-cell>}{<secondary-cell>}
+  \DeclareDocumentCommand \adderdown { m m m m }{%
+    \draw[to,dashed,YellowOrange] ($(table-#1.south west)+(0.5*\xcell+#3*\xcell,0)$) .. controls ++(-0.6,-1) and ++(0.6,1) .. ($(table-#2.north west)+({0.5*\xcell+#4*\xcell},0)$);
+    \adderup{#1}{#2}{#3}{#4}
+  }
+
+  % ===========================================================================
+ 
+  % Up-sweep
+  \table*{0}{(0,0)}{8}{1}{$x_0$,$x_1$,$x_2$,$x_3$,$x_4$,$x_5$,$x_6$,$x_7$}[fill=Emerald!50]
+  \table*{1}{(0,-\dtab)}{8}{1}{$x_0$,$\sum x_0 .. x_1$,$x_2$,$\sum x_2 .. x_3$,$x_4$,$\sum x_4 .. x_5$,$x_6$,$\sum x_6 .. x_7$}[fill=Emerald!50]
+  \table*{2}{(0,-2*\dtab)}{8}{1}{$x_0$,$\sum x_0 .. x_1$,$x_2$,$\sum x_0 .. x_3$,$x_4$,$\sum x_4 .. x_5$,$x_6$,$\sum x_4 .. x_7$}[fill=Emerald!50]
+  \table*{3}{(0,-3*\dtab)}{8}{1}{$x_0$,$\sum x_0 .. x_1$,$x_2$,$\sum x_0 .. x_3$,$x_4$,$\sum x_4 .. x_5$,$x_6$,$\sum x_0 .. x_7$}[fill=Emerald!50]
+  
+  \adderup{0}{1}{1}{0}
+  \adderup{0}{1}{3}{2}
+  \adderup{0}{1}{5}{4}
+  \adderup{0}{1}{7}{6}
+
+  \adderup{1}{2}{3}{1}
+  \adderup{1}{2}{7}{5}
+
+  \adderup{2}{3}{7}{3}
+
+  % Down-sweep
+  \table*{4}{(0,-4*\dtab)}{8}{1}{$x_0$,$\sum x_0 .. x_1$,$x_2$,$\sum x_0 .. x_3$,$x_4$,$\sum x_4 .. x_5$,$x_6$,$0$}[fill=Emerald!50]
+  \table*{5}{(0,-5*\dtab)}{8}{1}{$x_0$,$\sum x_0 .. x_1$,$x_2$,$0$,$x_4$,$\sum x_4 .. x_5$,$x_6$,$\sum x_0 .. x_3$}[fill=Emerald!50]
+  \table*{6}{(0,-6*\dtab)}{8}{1}{$x_0$,$0$,$x_2$,$\sum x_0 .. x_1$,$x_4$,$\sum x_0 .. x_3$,$x_6$,$\sum x_0 .. x_5$}[fill=Emerald!50]
+  \table*{7}{(0,-7*\dtab)}{8}{1}{$0$,$x_0$,$\sum x_0 .. x_1$,$\sum x_0 .. x_2$,$\sum x_0 .. x_3$,$\sum x_0 .. x_4$,$\sum x_0 .. x_5$,$\sum x_0 .. x_6$}[fill=Emerald!50]
+
+  \adderdown{4}{5}{7}{3}
+
+  \adderdown{5}{6}{3}{1}
+  \adderdown{5}{6}{7}{5}
+
+  \adderdown{6}{7}{1}{0}
+  \adderdown{6}{7}{3}{2}
+  \adderdown{6}{7}{5}{4}
+  \adderdown{6}{7}{7}{6}
+
+  % Separator
+  \draw[line] ($(table-3.west)+(-2.3,-0.5*\dtab)$) -- node[pos=0.003,anchor=west,yshift=8pt] {\sffamily\small Up-Sweep} node[pos=0.003,anchor=west,yshift=-8pt] {\sffamily\small Down-Sweep} ++(16,0);
+  \draw[to] ($(table-3.south east)+(-0.5*\xcell,0)$) -- node[fill=white] {\sffamily\bfseries\large 0} ($(table-4.north east)+(-0.5*\xcell,0)$);
+
+  % Labels
+  \foreach \id/\l in {0/0,1/1,2/2,3/3,4/0,5/1,6/2,7/3}
+    \node[anchor=east] at ($(table-\id.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{level \l}};
+
+\end{tikzpicture}
+\caption{Representation of Blelloch (sum) scan.}
+\label{fig:blelloch-scan}
+\end{figure}

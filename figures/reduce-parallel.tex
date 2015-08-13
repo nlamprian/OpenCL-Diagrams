@@ -1,0 +1,90 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\xcell{1.0cm}
+  \def\ycell{0.7cm}
+  \def\dtab{2.4cm}
+  \def\radius{0.2cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=1.5pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \shade{<id>}{<num-cells>}{<pos>}
+  \DeclareDocumentCommand \shade { m m m }{%
+    \path ($#3+(-0.02,0)$) node[anchor=east,minimum width=#2*\xcell,minimum height=0.95*\ycell,append after command={\pgfextra \draw[draw=none,sharp corners,fill=gray,opacity=0.4] (\tikzlastnode.north) [rounded corners=4pt] -| (\tikzlastnode.east) [rounded corners=4pt] |- (\tikzlastnode.south) [rounded corners=0pt] -| (\tikzlastnode.west) [rounded corners=0pt] |- (\tikzlastnode.north); \endpgfextra}] (shade-#1) {};
+  }
+
+  % \adder{<top-table-id>}{<bottom-table-id>}{<op-cell-diff>}{<x-offset>}
+  \DeclareDocumentCommand \adder { m m m m }{%
+    \node[draw=none] (mid-dist) at ($(table-#1.south west)!0.5!(table-#2.north west)+(#4,0)$) {};
+    \draw[line width=1.5pt,fill=Yellow!80] (mid-dist) circle (\radius);
+    \draw[line width=1.5pt] ($(mid-dist)+(180:\radius)$) -- ($(mid-dist)+(0:\radius)$);
+    \draw[line width=1.5pt] ($(mid-dist)+(-90:\radius)$) -- ($(mid-dist)+(90:\radius)$);
+    \draw[to] ($(table-#1.south west)+(#4,0)$) -- ($(mid-dist)+(0,\radius)$);
+    \draw[to] ($(mid-dist)+(0,{-\radius-0.02cm})$) -- (mid-dist |- table-#2.north);
+    \draw[to] ($(table-#1.south west)+({#4+#3*\xcell},-0.02)$) -- ($(mid-dist)+(35:\radius)$);
+  }
+
+  % ===========================================================================
+ 
+  % Draw level 0
+  \table*{0}{(0,0)}{8}{1}{}[fill=Emerald!50]
+  
+  % Draw level 1
+  \table*{1}{(0,-\dtab)}{8}{1}{}[fill=Emerald!50]
+  \shade{1}{4}{(table-1.east)}
+  \foreach \i in {0,1,2,3}{%
+    \pgfmathsetmacro\offset{\i + 0.5}
+    \adder{0}{1}{4}{\offset*\xcell}
+  }
+
+  % Draw level 2
+  \table*{2}{(0,-2*\dtab)}{8}{1}{}[fill=Emerald!50]
+  \shade{2}{6}{(table-2.east)}
+  \foreach \i in {0,1}{%
+    \pgfmathsetmacro\offset{\i + 0.5}
+    \adder{1}{2}{2}{\offset*\xcell}
+  }
+
+  % Draw level 3
+  \table*{3}{(0,-3*\dtab)}{8}{1}{}[fill=Emerald!50]
+  \shade{3}{7}{(table-3.east)}
+  \adder{2}{3}{1}{0.5*\xcell}
+
+  % Draw labels
+  \node[anchor=east] at ($(table-0.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{level 0}};
+  \node[anchor=east] at ($(table-1.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{level 1}};
+  \node[anchor=east] at ($(table-2.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{level 2}};
+  \node[anchor=east] at ($(table-3.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{level 3}};
+
+\end{tikzpicture}
+\caption{Representation of reduce.}
+\label{fig:reduce-parallel}
+\end{figure}

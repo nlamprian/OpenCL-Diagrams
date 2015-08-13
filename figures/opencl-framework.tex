@@ -1,0 +1,71 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\hspace*{-1.5cm}
+\begin{tikzpicture}[scale=1.0,transform shape]
+  
+  % Styles
+  \tikzstyle{every node}=[draw,rounded corners,text centered]
+  \tikzstyle{context}=[thick,fill=Dandelion!70,minimum width=45em,minimum height=3em,inner sep=0.3cm]
+  \tikzstyle{processor}=[thick,fill=MidnightBlue!60,minimum width=6.5em,minimum height=4.5em,inner sep=0.3cm]
+  \tikzstyle{program}=[fill=SpringGreen!80,minimum width=20.5em,minimum height=15.0em,inner sep=0.3cm]
+  \tikzstyle{source}=[draw=MidnightBlue!70,fill=MidnightBlue!5,minimum width=4.8cm,minimum height=4.15cm,line width=0.2mm,inner sep=0.3cm]
+  \tikzstyle{binary-frame}=[fill=Gray!60!Yellow!35!White,minimum width=5em,minimum height=9em,inner sep=0.3cm]
+  \tikzstyle{binary}=[fill=Gray!60!Yellow!15!White,text width=3.5em,minimum width=4em,minimum height=3.5em,inner sep=0.1cm]
+  \tikzstyle{kernel-frame}=[fill=WildStrawberry!60!Orchid!80!White,minimum width=7.5em,minimum height=13.0em,inner sep=0.3cm]
+  \tikzstyle{kernel-name}=[fill=Gray!60!Yellow!15!White,minimum width=5.5em,minimum height=2.2em,inner xsep=0cm,inner ysep=0.1cm]
+  \tikzstyle{memory}=[fill=Emerald!60,minimum width=6em,minimum height=4em,inner sep=0.3cm]
+  \tikzstyle{queue-frame}=[fill=Goldenrod!70,minimum width=15.8em,minimum height=13.4em,inner sep=0.3cm]
+  \tikzstyle{queue}=[text width=4em,minimum width=5.5em,minimum height=9.0em,inner sep=0cm]
+  \tikzstyle{bus}=[<->,>=stealth',shorten >=1pt,line width=2.0pt]
+
+  % ===========================================================================
+ 
+  % Context
+  \path node[context] (context) {\sffamily\bfseries\Large{Context}};
+  % Processors
+  \path (context.north)+(-2.0,1.8) node[processor] (cpu) {\sffamily\bfseries\large{CPU}};
+  \path (context.north)+(2.0,1.8) node[processor] (gpu) {\sffamily\bfseries\large{GPU}};
+  % Programs
+  \path (context.south west)+(-3.2,-1.0) node[program,anchor=north west] (program-0) {};
+  \path (program-0)+(-0.2,-0.2) node[program] (program-1) {};
+  \node[draw=none,anchor=south west] at ($(program-1.south west)+(0.2,0.2)$) {\sffamily\bfseries\large{Programs}};
+  \path (program-1.north west)+(0.55,-0.35) node[source,anchor=north west] (source-0) {};
+  \node[draw=none,anchor=north west] (source-1) at ($(program-1.north west)+(0.2,-0.4)$) {\mycodembed[width=4.8cm]{files/opencl-framework.cl}};
+  \path (program-1.north east)+(-0.3,-0.8) node[binary-frame,anchor=north east] (binary-frame) {};
+  \path (binary-frame.north)+(0.0,-0.26) node[binary,anchor=north] (binary-0) {\sffamily\tiny\baselineskip=0mm nn\_add\_local\vspace{0.8mm} \scriptsize CPU Binary \par};
+  \path (binary-frame.south)+(0.0,0.26) node[binary,anchor=south] (binary-1) {\sffamily\tiny\baselineskip=0mm nn\_add\_local\vspace{0.8mm} \scriptsize GPU Binary \par};
+  % Kernels
+  \path (program-0.east)+(0.6,0.0) node[kernel-frame,anchor=west] (kernel-0) {};
+  \path (kernel-0)+(-0.2,-0.2) node[kernel-frame] (kernel-1) {};
+  \node[draw=none,anchor=south west] at ($(kernel-1.south west)+(0.2,0.2)$) {\sffamily\bfseries\large{Kernels}};
+  \path (kernel-1.north)+(0.0,-0.4) node[kernel-name,anchor=north] (kernel-name) {\sffamily\scriptsize nn\_add\_local};
+  \path (kernel-name.south)+(0.0,-0.08) node[draw=none,anchor=north] (kernel-args) {\begin{tcolorbox}[colback=Gray!60!Yellow!15!White,colframe=black,fontupper=\sffamily\small,right=0mm,left=0mm,boxsep=0.5mm,boxrule=0.15mm,width=2.2cm,halign=center] arg[0] value\tcbline arg[1] value\tcbline arg[2] value\end{tcolorbox}};
+  % Memory objects
+  \path (kernel-0.east)+(0.6,-1.0) node[memory,anchor=west] (buffer-0) {};
+  \path (buffer-0)+(-0.2,-0.2) node[memory] (buffer-1) {\sffamily\bfseries\large{Buffers}};
+  \path (buffer-0.north)+(0.6,0.6) node[memory,anchor=south west] (image-0) {};
+  \path (image-0)+(-0.2,-0.2) node[memory] (image-1) {\sffamily\bfseries\large{Images}};
+  % Command queues
+  \path (program-0.north -| image-0.east)+(0.6,-0.2) node[queue-frame,anchor=north west] (queue-frame-0) {};
+  \path (queue-frame-0)+(-0.2,-0.2) node[queue-frame] (queue-frame-1) {};
+  \node[draw=none,anchor=south west] at ($(queue-frame-1.south west)+(0.2,0.2)$) {\sffamily\bfseries\large{Command Queues}};
+  \path (queue-frame-1.north west)+(0.7,-0.4) node[queue,anchor=north west,fill=Maroon!60] (queue-in-0) {};
+  \path (queue-in-0)+(-0.2,-0.2) node[queue,fill=Maroon!60] (queue-in-1) {\sffamily\bfseries\large{In Order Queues}};
+  \path (queue-frame-1.north east)+(-0.5,-0.4) node[queue,anchor=north east,fill=Aquamarine!70] (queue-out-0) {};
+  \path (queue-out-0)+(-0.2,-0.2) node[queue,fill=Aquamarine!70] (queue-out-1) {\sffamily\bfseries\large{Out of Order Queues}};
+
+  % Draw connections
+  \draw[bus] (cpu) -- (cpu |- context.north);
+  \draw[bus] (gpu) -- (gpu |- context.north);
+  \draw[bus] (program-0.north) -- (program-0.north |- context.south);
+  \draw[bus] (kernel-0.north) -- (kernel-0.north |- context.south);
+  \draw[bus] (buffer-0.north) -- (buffer-0.north |- context.south);
+  \draw[bus] (image-0.north) -- (image-0.north |- context.south);
+  \draw[bus] (queue-frame-0.north) -- (queue-frame-0.north |- context.south);
+
+\end{tikzpicture}
+\caption{OpenCL framework.}
+\label{fig:opencl-framework}
+\end{figure}

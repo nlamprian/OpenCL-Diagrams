@@ -1,0 +1,93 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\xcell{0.9cm}
+  \def\ycell{0.9cm}
+  \def\dtab{2.2cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=1.5pt,red,cap=round]
+  \tikzstyle{bline}=[to,dashed,line width=1.0pt,black]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \bline{<top-table-id>}{<bottom-table-id>}{<num-lines> - 1}{<label-list>}[<x-shift>]
+  \DeclareDocumentCommand \bline { m m m m O{0pt} }{%
+    \pgfmathsetmacro\xrel{1/#3}
+    \foreach[count=\li from 0] \l in {#4}{%
+      \node[inner sep=0pt] (top) at ($(table-#1.south west)!{\li*\xrel}!(table-#1.south east)$) {};
+      \node[inner sep=0pt] (bottom) at ($(table-#2.north west)!{\li*\xrel}!(table-#2.north east)$) {};
+      \draw[bline] (top) -- (bottom);
+      \node[anchor=west,inner sep=0pt,xshift=#5] at ($(top)!0.5!(bottom)$) {\sffamily \l};
+    }
+  }
+
+  % ===========================================================================
+ 
+  % Work-group scans
+  \table*{0}{(0,0)}{16}{1}{}[fill=Emerald!50]
+  \def\xcell{4*0.9cm}
+  \table*{1}{(0,-\dtab)}{4}{1}{}[fill=YellowGreen!50]
+  \def\xcell{0.9cm}
+  \bline{0}{1}{4}{work-group $0$,work-group $1$,work-group $2$,work-group $3$,}[7.5mm]
+
+  % Work-group sums
+  \table*{2}{($(table-1)+(0,-\dtab)$)}{4}{1}{}[anchor=north,fill=YellowGreen!50]
+  \draw[bline] ($(table-1.south west)!0.25!(table-1.south east)$) .. controls ++(0.2,-1) and ++(-0.1,1) .. ($(table-2.north west)+(0.5*\xcell,0)$);
+  \draw[bline] ($(table-1.south west)!0.5!(table-1.south east)$) .. controls ++(0,-1) and ++(0,1) .. ($(table-2.north west)+(1.5*\xcell,0)$);
+  \draw[bline] ($(table-1.south west)!0.75!(table-1.south east)$) .. controls ++(-0.2,-0.7) and ++(0.1,1.3) .. ($(table-2.north west)+(2.5*\xcell,0)$);
+  \draw[bline] ($(table-1.south west)!1.0!(table-1.south east)$) .. controls ++(-0.2,-1) and ++(0.4,1.5) .. ($(table-2.north west)+(3.5*\xcell,0)$);
+
+  % Sums scan
+  \table*{3}{($(table-2.south)+(0,-0.8*\dtab)$)}{4}{1}{}[anchor=south,fill=RoyalBlue!50]
+  \bline{2}{3}{1}{,}
+
+  % Sums addition
+  \def\xcell{4*0.9cm}
+  \table*{4}{($(table-1.south west)+(0,-2.7*\dtab)$)}{4}{1}{}[fill=RoyalBlue!50!YellowGreen!50!VioletRed]
+  \def\xcell{0.9cm}
+  \table*{5}{($(table-4.north west)+(0,-\dtab)$)}{16}{1}{}[fill=Emerald!50]
+  \bline{1}{4}{1}{,}
+  \bline{4}{5}{4}{,,,,}
+
+  % Global sums lines
+  \draw[bline] ($(table-3.south west)!{3*0.125}!(table-3.south east)$) .. controls ++(0,-1) and ++(0,1) .. node[fill=white] {$\bm +$} ($(table-4.north west)+(1.5*4*\xcell,0)$);
+  \draw[bline] ($(table-3.south west)!{5*0.125}!(table-3.south east)$) .. controls ++(0,-1) and ++(0,1) .. node[fill=white] {$\bm +$} ($(table-4.north west)+(2.5*4*\xcell,0)$);
+  \draw[bline] ($(table-3.south west)!{7*0.125}!(table-3.south east)$) .. controls ++(-0,-1) and ++(-0.2,1.5) .. node[fill=white] {$\bm +$} ($(table-4.north west)+(3.5*4*\xcell,0)$);
+
+  % Labels
+  \node[anchor=east] at ($(table-0.west)+(-0.3,0)$) {\sffamily\bfseries{in}};
+  \node[anchor=north west] at ($(table-1.south west)+(0.1,0)$) {\sffamily\bfseries{partial scans}};
+  \node[anchor=east] at ($(table-2.west)+(-0.3,0)$) {\sffamily\bfseries{partial sums}};
+  \node[anchor=east] at ($(table-3.west)+(-0.3,0)$) {\sffamily\bfseries{scan of sums}};
+  \node[anchor=east] at ($(table-5.west)+(-0.3,0)$) {\sffamily\bfseries{out}};
+
+\end{tikzpicture}
+\caption{Representation of Blelloch (sum) scan for arbitrary size input.}
+\label{fig:blelloch-scan-sums}
+\end{figure}

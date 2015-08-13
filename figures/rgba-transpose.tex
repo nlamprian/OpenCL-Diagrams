@@ -1,0 +1,77 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\wtab{21.8em}
+  \def\htab{7.25em}
+  \def\celldim{0.7}
+
+  % Styles
+  \tikzstyle{table}=[draw,thick,rounded corners,text centered,minimum width=\wtab,minimum height=\htab,inner sep=0.3cm]
+  \tikzstyle{cell}=[anchor=north west,text centered,minimum width=1.8em-0.05em,minimum height=1.8em-0.05em,inner sep=0.3cm]
+  \tikzstyle{shade}=[draw,thick,anchor=north west,fill=gray,opacity=0.3,pattern=north west lines,text centered]
+  \tikzstyle{sep}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=2.5pt,red,cap=round]
+
+  % \frame{<id>}{<pos>}[<fill-color>][<rot-angle>]
+  \DeclareDocumentCommand \frame { m m o O{0} }{%
+    \path #2 node[table,rotate=#4,anchor=north west,fill=\IfValueTF{#3}{#3}{none}] (frame-#1) {};
+    \foreach \x in {1,2,...,11}
+      \draw[sep,rotate=#4] ($(frame-#1.north west)+(\x*\celldim,0)$) -- ++(0,-\htab);
+    \foreach \y in {1,2,3}
+      \draw[sep,rotate=#4] ($(frame-#1.north west)+(0,-\y*\celldim)$) -- ++(\wtab,0);
+  }
+
+  % \cell{<pos>}{<cell-x-id>}{<cell-y-id>}{<color>}[<rot-angle>][<north-west-arc>][<south-west-arc>][<north-east-arc>][<south-east-arc>]
+  \DeclareDocumentCommand \cell { m m m m O{0} O{0pt} O{0pt} O{0pt} O{0pt} }{%
+    \path[rotate=#5] ($#1+({#2*\celldim},{-#3*\celldim})$) node[cell,append after command={\pgfextra \draw[draw=none,sharp corners,fill=#4] (\tikzlastnode.north) [rounded corners=#8] -| (\tikzlastnode.east) [rounded corners=#9] |- (\tikzlastnode.south) [rounded corners=#7] -| (\tikzlastnode.west) [rounded corners=#6] |- (\tikzlastnode.north); \endpgfextra}] {};
+  }
+
+  % \table{<id>}{<pos>}[<rot-angle>]
+  \DeclareDocumentCommand \table { m m O{0} }{%
+    % R channel
+    \foreach \x in {1,2,...,10}
+      \cell{#2}{\x}{0}{Red!90}[#3];
+    \cell{#2}{0}{0}{Red!90}[#3][4.5pt]
+    \cell{#2}{11}{0}{Red!90}[#3][0pt][0pt][4.5pt]
+    % G channel
+    \foreach \x in {0,1,...,11}
+      \cell{#2}{\x}{1}{LimeGreen!80}[#3];
+    % B channel
+    \foreach \x in {0,1,...,11}
+      \cell{#2}{\x}{2}{NavyBlue!80}[#3];
+    % A channel
+    \foreach \x in {1,2,...,10}
+      \cell{#2}{\x}{3}{Yellow!35}[#3];
+    \cell{#2}{0}{3}{Yellow!35}[#3][0pt][4.5pt]
+    \cell{#2}{11}{3}{Yellow!35}[#3][0pt][0pt][0pt][4.5pt]
+    % Frame
+    \frame{#1}{#2}[none][#3]
+  }
+
+  % \shade{<pos>}{<x-cells>}{<y-cells>}{<label>}
+  \DeclareDocumentCommand \shade { m m m m }{%
+    \path #1 node[shade,minimum width=#2*1.815em,minimum height=#3*1.8em] (shade) {};
+    \node[text=Fuchsia] at (shade) {\sffamily\bfseries\Large #4};
+  }
+
+  % ===========================================================================
+ 
+  % Draw tables
+  \table{0}{(0,0)}[90]
+  \table{1}{($(frame-0.south)+(0.8*\htab,0.5*\htab)$)}[0]
+
+  % Draw transition arrow
+  \draw[to] ($(frame-0.south)+(0.1*\htab,0)$) -- node[midway,above] {\sffamily\LARGE\bfseries T} ($(frame-1.west)+(-0.1*\htab,0)$);
+
+  % Draw shades
+  \shade{($(frame-0.north east)+(0,-\celldim-0.01)$)}{4}{1}{pixel}
+  \shade{($(frame-1.north west)+(0,-\celldim+0.01)$)}{12}{1}{channel}
+
+\end{tikzpicture}
+\caption{Representation of an image transpose.}
+\label{fig:rgba-transpose}
+\end{figure}

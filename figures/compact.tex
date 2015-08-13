@@ -1,0 +1,83 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\xcell{1.0cm}
+  \def\ycell{0.7cm}
+  \def\dtab{2.4cm}
+  \def\radius{0.2cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{cell}=[anchor=west,fill=red!90,text centered,minimum width=\xcell-0.03cm,minimum height=\ycell-0.02cm,inner sep=0.3cm]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=1.5pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \shade{<id>}{<num-cells>}{<pos>}
+  \DeclareDocumentCommand \shade { m m m }{%
+    \path ($#3+(-0.02,0)$) node[anchor=east,minimum width=#2*\xcell,minimum height=0.95*\ycell,append after command={\pgfextra \draw[draw=none,sharp corners,fill=gray,opacity=0.4] (\tikzlastnode.north) [rounded corners=4pt] -| (\tikzlastnode.east) [rounded corners=4pt] |- (\tikzlastnode.south) [rounded corners=0pt] -| (\tikzlastnode.west) [rounded corners=0pt] |- (\tikzlastnode.north); \endpgfextra}] (shade-#1) {};
+  }
+
+  % \cell{<table-id>}{<cell-id>}
+  \DeclareDocumentCommand \cell { m m }{%
+    \path ($(table-#1.west)+({#2*\xcell+0.008cm},0)$) node[cell] {};
+  }
+
+  % \link{<top-table-id>}{<bottom-table-id>}{<top-table-cell>}{<top-table-cell>}[<arrow-tip-y-offset>]
+  \DeclareDocumentCommand \link { m m m m O{0} }{%
+    \draw[to] ($(table-#1.south west)+(#3*\xcell+0.5*\xcell,0)$) -- ++(0,-0.7*\dtab) -- ($(table-#2.north west)+(#4*\xcell+0.5*\xcell,#5)$);
+  }
+
+  % ===========================================================================
+
+  % Draw input
+  \table*{0}{(0,0)}{8}{1}{}[fill=Emerald!50]
+  
+  % Draw predicate
+  \table*{1}{(0.0,-0.5*\dtab)}{8}{1}{}[fill=LimeGreen!80]
+  \cell{1}{1}
+  \cell{1}{3}
+  \cell{1}{5}
+  \cell{1}{6}
+
+  % Draw output
+  \table*{2}{(0.0,-1.4*\dtab)}{8}{1}{}[fill=Emerald!50]
+  \shade{2}{4}{(table-2.east)}
+
+  % Draw mapping lines
+  \foreach \tc/\bc/\y in {0/0/0,2/1/0.01,4/2/0.03,7/3/0.05}
+    \link{0}{2}{\tc}{\bc}[\y];
+
+  % Draw labels
+  \node[anchor=east] at ($(table-0.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{in}};
+  \node[anchor=east] at ($(table-1.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{predicate}};
+  \node[anchor=east] at ($(table-2.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{out}};
+
+\end{tikzpicture}
+\caption{Representation of compact.}
+\label{fig:compact}
+\end{figure}

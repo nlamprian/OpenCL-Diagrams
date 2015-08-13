@@ -1,0 +1,73 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=0.9,transform shape]
+
+  % Parameters
+  \def\xcell{1.0cm}
+  \def\ycell{8.5mm}
+  \def\radius{0.3cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=2.5pt,shorten >=1pt,line width=2.0pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \adder*{<x-offset>}
+  % The star (*) argument disables drawing of the second adder argument arrow
+  \DeclareDocumentCommand \adder { s m }{%
+    \node (mid-dist) at ($(table-0.south west)!0.5!(table-1.north west)+(#2,0)$) {};
+    \draw[line width=2pt,fill=Yellow!80] (mid-dist) circle (\radius);
+    \draw[line width=1.5pt] ($(mid-dist)+(180:\radius-1.5mm)$) -- ($(mid-dist)+(0:\radius-1.5mm)$);
+    \draw[line width=1.5pt] ($(mid-dist)+(-90:\radius-1.5mm)$) -- ($(mid-dist)+(90:\radius-1.5mm)$);
+    \draw[to] ($(table-0.south west)+(#2,0)$) -- ($(mid-dist)+(0,\radius)$);
+    \draw[to] ($(mid-dist)+(0,-\radius)$) -- (mid-dist |- table-1.north);
+    \IfBooleanF{#1}{%
+      \draw[to] ($(table-0.south west)+({#2+\xcell},0)$) -- ($(mid-dist)+(55:\radius)$);}
+  }
+
+  % ===========================================================================
+ 
+  % Draw tables
+  \table*{0}{(0.0, 0.0)}{12}{1}{}[fill=Emerald!50]
+  \table*{1}{(0.0,-3.0)}{12}{1}{}[fill=Emerald!50]
+
+  % Draw labels
+  \node[anchor=east] at ($(table-0.west)+(-0.3,0.0)$) {\sffamily\bfseries\large{in}};
+  \node[anchor=east] at ($(table-1.west)+(-0.3,0.0)$) {\sffamily\bfseries\large{out}};
+
+  % Draw adders
+  \adder{0.5*\xcell}
+  \adder{1.5*\xcell}
+  \adder{3.5*\xcell}
+  \adder{7.5*\xcell}
+  \node[red] at ($(table-0.south west)!0.5!(table-1.north west)+(5.5,0)$) {\sffamily\bfseries\LARGE{...}};
+  \node[red] at ($(table-0.south west)!0.5!(table-1.north west)+(9.5,0)$) {\sffamily\bfseries\LARGE{...}};
+  \adder*{11.5*\xcell}
+
+\end{tikzpicture}
+\caption{{\ttfamily nn\_add}: Every output element is the sum of the corresponding input element and its next element.}
+\label{fig:nn-add}
+\end{figure}

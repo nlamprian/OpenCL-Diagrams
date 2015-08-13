@@ -1,0 +1,23 @@
+%!TEX root = main.tex
+
+% \pagenumbering{gobble}
+
+% fontspec
+% \setmainfont[Mapping=tex-text]{Noto Serif} % via Google Fonts
+% \setsansfont[Mapping=tex-text]{Noto Sans} % via Google Fonts
+% \setmonofont[Mapping=tex-text]{Ubuntu Mono} % via Google Fonts
+
+% caption
+% \DeclareCaptionFormat{empty}{}
+% \captionsetup{format=empty,aboveskip=0pt,belowskip=0pt}
+
+% graphicx
+\graphicspath{{img/}}
+
+% tikz
+\usetikzlibrary{calc,arrows,positioning,patterns}
+
+% tcolorbox
+% Highlighted listing (default language is C++). Use star (*) to enable numbering.
+% \begin{mycodembed}*[<optional-arguments>]{<listing-file>} <content> \end{mycodembed}
+\DeclareTCBInputListing{mycodembed}{ s O{} m }{listing engine=minted,minted style=perldoc,minted language=cpp,colback=MidnightBlue!5,colframe=MidnightBlue!70,right=0mm,top=0mm,bottom=0mm,boxrule=0.2mm,listing file={#3},listing only,breakable,minted options={fontsize=\tiny,breaklines=true},IfBooleanTF={#1}{minted options={linenos,numbersep=4mm},left=6mm,enhanced,overlay={\begin{tcbclipinterior}\draw[draw=Gray!70,fill=MidnightBlue!30!Gray!10!White] (frame.south west) rectangle ([xshift=5mm]frame.north west);\end{tcbclipinterior}}}{left=0mm},#2}

@@ -1,0 +1,57 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=0.9,transform shape]
+
+  % Parameters
+  \renewcommand{\arraystretch}{2.3} 
+  \setlength{\extrarowheight}{-1mm} 
+
+  % Layers
+  \pgfdeclarelayer{front-0}
+  \pgfdeclarelayer{front-1}
+  \pgfsetlayers{main,front-0,front-1}
+
+  % \is{<id>}{<pos>}{<label>}{<x-limit>}{<y-limit>}{<background-color>}
+  \DeclareDocumentCommand \is { m m m m m m }{%
+    \node[anchor=west,draw,rounded corners,fill=#6,inner sep=0.2cm] (wi-#1) at #2 {%
+    \begin{tabular}{ >{\centering\arraybackslash\ttfamily\bfseries\large} m{1cm} | 
+                     >{\centering\arraybackslash\ttfamily\bfseries\large} m{1cm} | 
+                     >{\centering\arraybackslash\ttfamily\bfseries\large} m{1cm} | 
+                     >{\centering\arraybackslash\ttfamily\bfseries\large} m{1cm} } 
+      #3\linebreak<0,0>  & #3\linebreak<1,0>  & $\cdots$          & #3\linebreak<#4,0>  \\\hline
+      #3\linebreak<0,1>  & #3\linebreak<1,1>  & $\cdots$          & #3\linebreak<#4,1>  \\\hline
+      $\vdots$           & $\vdots$           & #3\linebreak<i,j> & $\vdots$            \\\hline
+      #3\linebreak<0,#5> & #3\linebreak<1,#5> & $\cdots$          & #3\linebreak<#4,#5> \\
+    \end{tabular}
+    };
+  }
+
+  % ===========================================================================
+
+  % Index spaces
+  \is{0}{(0,0)}{WI}{n}{m}{RoyalBlue!80}
+  \is{1}{($(wi-0.east)+(1.4,0)$)}{WG}{v}{u}{TealBlue!80}  
+  \begin{pgfonlayer}{front-1}
+  \is{2}{($(wi-1)+(1.9,2.0)$)}{WI}{q}{p}{Yellow!70}
+  \end{pgfonlayer}
+
+  % Separating line
+  \draw[thick] ($(wi-0.north east)+(0.7,-0.5)$) -- ($(wi-0.south east)+(0.7,0.5)$);
+
+  % Zoom lines
+  \begin{pgfonlayer}{front-0}
+  \draw[thick] ($(wi-1)+(-0.00,-0.00)$) node (wi-tl) {} -- ($(wi-2.north west)+( 0.07,-0.07)$);
+  \draw[thick] ($(wi-1)+( 1.43,-0.00)$) -- ($(wi-2.north east)+(-0.07,-0.07)$);
+  \draw[thick] ($(wi-1)+( 0.00,-1.38)$) -- ($(wi-2.south west)+( 0.07, 0.07)$);
+  \draw[thick] ($(wi-1)+( 1.43,-1.38)$) node (wi-br) {} -- ($(wi-2.south east)+(-0.07, 0.07)$);
+  \end{pgfonlayer}
+
+  % Shade
+  \draw[draw=none,fill=white,opacity=0.25] ($(wi-tl)+(0.01,-0.01)$) rectangle ($(wi-br)+(-0.01,0.01)$);
+
+\end{tikzpicture}
+\caption{Index space during a kernel execution. This space is further divided into groups.}
+\label{fig:index-spaces}
+\end{figure}

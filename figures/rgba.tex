@@ -1,0 +1,80 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\wtab{21.8em}
+  \def\htab{7.25em}
+  \def\celldim{0.7}
+
+  % Styles
+  \tikzstyle{table}=[draw,thick,rounded corners,text centered,minimum width=\wtab,minimum height=\htab,inner sep=0.3cm]
+  \tikzstyle{cell}=[anchor=north west,text centered,minimum width=1.8em-0.05em,minimum height=1.8em-0.05em,inner sep=0.3cm]
+  \tikzstyle{shade}=[draw,thick,anchor=north west,fill=gray,opacity=0.3,pattern=north west lines,text centered]
+  \tikzstyle{sep}=[dashed,line width=0.7pt]
+
+  % \frame{<id>}{<pos>}[<fill-color>]
+  \DeclareDocumentCommand \frame { m m o }{%
+    \path #2 node[table,anchor=north west,fill=\IfValueTF{#3}{#3}{none}] (frame-#1) {};
+    \foreach \x in {1,2,...,11}
+      \draw[sep] ($(frame-#1.north west)+(\x*\celldim,0)$) -- ++(0,-\htab);
+    \foreach \y in {1,2,3}
+      \draw[sep] ($(frame-#1.north west)+(0,-\y*\celldim)$) -- ++(\wtab,0);
+  }
+
+  % \cell{<pos>}{<cell-x-id>}{<cell-y-id>}{<color>}[<north-west-arc>][<south-west-arc>][<north-east-arc>][<south-east-arc>]
+  \DeclareDocumentCommand \cell { m m m m O{0pt} O{0pt} O{0pt} O{0pt} }{%
+    \path ($#1+({#2*\celldim},{-#3*\celldim})$) node[cell,append after command={\pgfextra \draw[draw=none,sharp corners,fill=#4] (\tikzlastnode.north) [rounded corners=#7] -| (\tikzlastnode.east) [rounded corners=#8] |- (\tikzlastnode.south) [rounded corners=#6] -| (\tikzlastnode.west) [rounded corners=#5] |- (\tikzlastnode.north); \endpgfextra}] {};
+  }
+
+  % \shade{<pos>}{<x-cells>}{<y-cells>}{<label>}
+  \DeclareDocumentCommand \shade { m m m m }{%
+    \path #1 node[shade,minimum width=#2*1.815em,minimum height=#3*1.8em] (shade) {};
+    \node[text=Fuchsia] at (shade) {\sffamily\bfseries\Large #4};
+  }
+
+  % ===========================================================================
+
+  % Create reference point
+  \node (p) at (0,0) {};
+
+  % Draw R channel
+  \foreach \y in {1,2}
+    \cell{(p)}{0}{\y}{Red!90};
+  \cell{(p)}{0}{0}{Red!90}[4.5pt]
+  \cell{(p)}{0}{3}{Red!90}[0pt][4.5pt]
+  \foreach \x in {4,8}
+    \foreach \y in {0,1,...,3}
+      \cell{(p)}{\x}{\y}{Red!90};
+
+  % Draw G channel
+  \foreach \x in {1,5,9}
+    \foreach \y in {0,1,...,3}
+      \cell{(p)}{\x}{\y}{LimeGreen!80};
+
+  % Draw B channel
+  \foreach \x in {2,6,10}
+    \foreach \y in {0,1,...,3}
+      \cell{(p)}{\x}{\y}{NavyBlue!80};
+
+  % Draw A channel
+  \foreach \y in {1,2}
+    \cell{(p)}{11}{\y}{Yellow!35};
+  \cell{(p)}{11}{0}{Yellow!35}[0pt][0pt][4.5pt]
+  \cell{(p)}{11}{3}{Yellow!35}[0pt][0pt][0pt][4.5pt]
+  \foreach \x in {3,7}
+    \foreach \y in {0,1,...,3}
+      \cell{(p)}{\x}{\y}{Yellow!35};
+
+  % Draw frame
+  \frame{0}{(p)}
+
+  % Draw shade
+  \shade{($(frame-0.north west)+(4*\celldim,-\celldim+0.01)$)}{4}{1}{pixel}
+
+\end{tikzpicture}
+\caption{Representation of a $3 \times 4$ RGBA image.}
+\label{fig:rgba}
+\end{figure}

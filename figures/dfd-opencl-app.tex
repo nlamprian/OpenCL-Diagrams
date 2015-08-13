@@ -1,0 +1,30 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Styles
+  \tikzstyle{block}=[draw,fill=RoyalBlue!80,text centered,text width=14em,minimum width=14em,inner sep=0.3cm,rounded corners=8pt]
+  \tikzstyle{to}=[->,>=stealth',shorten >=1pt,thick]
+
+  % \block{<id>}{<label>}
+  \newcommand{\block}[2]{node[block] (#1) {\sffamily\bfseries{#2}}}
+
+  % ===========================================================================
+ 
+  % Draw blocks
+  \path                         \block{app}{OpenCL Application};
+  \path (app.south) +(0.0,-1.4) \block{lib}{OpenCL Library\\\ttfamily(libOpenCL.so)};
+  \path (lib.south) +(0.0,-1.4) \block{icd}{Installable Client Driver\\\ttfamily(amdocl64.icd)};
+  \path (icd.south) +(0.0,-1.4) \block{dev}{OpenCL Device\\\ttfamily(fglrx)};
+    
+  % Draw arrows
+  \draw[to] (app.south) -- (lib.north);
+  \draw[to] (lib.south) -- (icd.north);
+  \draw[to] (icd.south) -- (dev.north);
+
+\end{tikzpicture}
+\caption{Data flow diagram for an OpenCL application.}
+\label{fig:dfd-opencl-app}
+\end{figure}

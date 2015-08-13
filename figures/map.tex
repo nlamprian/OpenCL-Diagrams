@@ -1,0 +1,63 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\xcell{1.0cm}
+  \def\ycell{0.7cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=1pt,line width=1.5pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % \adder{<top-table-id>}{<bottom-table-id>}{<x-offset>}
+  \DeclareDocumentCommand \adder { m m m }{%
+    \path ($(table-#1.south west)!0.5!(table-#2.north west)+(#3,0)$) node[draw,line width=1.5pt,fill=Yellow!80,minimum width=4mm,minimum height=4mm] (mid-dist) {$\bm f$};
+    \draw[to] ($(table-#1.south west)+(#3,0)$) -- (mid-dist.north);
+    \draw[to] (mid-dist.south) -- (mid-dist |- table-#2.north);
+  }
+
+  % ===========================================================================
+ 
+  % Draw tables
+  \table*{0}{(0.0, 0.0)}{8}{1}{}[fill=Emerald!50]
+  \table*{1}{(0.0,-2.6)}{8}{1}{}[fill=Emerald!50]
+
+  % Draw labels
+  \node[anchor=east] at ($(table-0.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{in}};
+  \node[anchor=east] at ($(table-1.west)+(-0.3,0.0)$) {\sffamily\bfseries\small{out}};
+
+  % Draw adders  
+  \foreach \x in {0,1,...,7}{%
+    \pgfmathsetmacro\offset{\x + 0.5}
+    \adder{0}{1}{\offset*\xcell}
+  }
+
+\end{tikzpicture}
+\caption{Representation of map.}
+\label{fig:map}
+\end{figure}

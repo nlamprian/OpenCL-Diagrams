@@ -1,0 +1,70 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Styles
+  \tikzstyle{every node}=[draw,rounded corners,text centered]
+  \tikzstyle{host}=[thick,fill=TealBlue!70,minimum width=38.5em,minimum height=7.5em,inner sep=0.3cm]
+  \tikzstyle{dev}=[thick,fill=Yellow!70,minimum width=38.5em,minimum height=27.7em,inner sep=0.3cm]
+  \tikzstyle{ram}=[text centered,minimum width=36em,minimum height=3.5em,inner sep=0.3cm]
+  \tikzstyle{constant}=[fill=Peach!80,text centered,minimum width=12.5em,minimum height=2em,inner xsep=0.3cm,inner ysep=0.25cm]
+  \tikzstyle{group}=[fill=NavyBlue!70,minimum width=17.5em,minimum height=18em,inner sep=0.3cm]
+  \tikzstyle{local}=[fill=SeaGreen!70,minimum width=15.5em,minimum height=3em,inner sep=0.3cm]
+  \tikzstyle{wi}=[fill=RoyalPurple!30!CarnationPink,minimum width=7em,minimum height=4em,inner sep=0.3cm]
+  \tikzstyle{private}=[fill=OrangeRed!70,text width=7em,minimum width=6em,minimum height=4em,inner xsep=0.1cm,inner ysep=0.3cm]
+  \tikzstyle{bus}=[<->,>=stealth',shorten >=1pt,line width=2.0pt]
+  \tikzstyle{bus2}=[<->,>=stealth',shorten >=1pt,line width=1.4pt]
+  \tikzstyle{label}=[draw=none]
+
+  % \memory{<id>}{<pos>}{<color>}{<label>}
+  \DeclareDocumentCommand \memory { m m m m }{\path #2 node[ram,anchor=south,fill=#3] (#1) {\sffamily\bfseries\large{#4}};}
+
+  % \group{<id>}{<pos>}{<anchor}
+  \DeclareDocumentCommand \group { m m m }{%
+    \path #2 node[group,anchor=#3,opacity=0.9] (#1) {};
+    \ifthenelse{\equal{#3}{south west}}%
+    {\node[label,above right] at ($(#1.#3)+(0.15,0.15)$) {\sffamily\bfseries\large{work-group}};}%
+    {\node[label,above left] at ($(#1.#3)+(-0.15,0.15)$) {\sffamily\bfseries\large{work-group}};}
+  }
+
+  % \content{<id>}{<pos>}
+  \DeclareDocumentCommand \content { m m }{%
+    \path #2 node[local,anchor=south] (local-#1) {\sffamily\bfseries\large{Local Memory}};
+    \path (local-#1.north west)+(0.0,0.65) node[wi,anchor=south west] (wi-#1-0) {\sffamily\bfseries\large{work-item}};
+    \path (local-#1.north east)+(0.0,0.65) node[wi,anchor=south east] (wi-#1-1) {\sffamily\bfseries\large{work-item}};
+    \draw[bus2] (wi-#1-0.south) -- (wi-#1-0.south |- local-#1.north);
+    \draw[bus2] (wi-#1-1.south) -- (wi-#1-1.south |- local-#1.north);
+    \path (wi-#1-0.north)+(0.0,0.65) node[private,anchor=south] (private-#1-0) {\sffamily\bfseries\large{Private Memory}};
+    \path (wi-#1-1.north)+(0.0,0.65) node[private,anchor=south] (private-#1-1) {\sffamily\bfseries\large{Private Memory}};
+    \draw[bus2] (wi-#1-0.north) -- (private-#1-0.south);
+    \draw[bus2] (wi-#1-1.north) -- (private-#1-1.south);
+  }
+
+  % ===========================================================================
+ 
+  % Draw device
+  \path node[dev] (dev) {};
+  \node[label,above right,opacity=0.8] at ($(dev.south east)+(-2.4,0.15)$) {\sffamily\bfseries\Large{Device}};
+  \memory{global-mem}{($(dev.south)+(0.0,0.95)$)}{RedOrange!70}{{\hspace{1cm}Global Memory}}
+  \path (global-mem.south west) node[constant,anchor=south west] (constant) {\sffamily\bfseries{Constant Memory}};
+  \group{group-0}{($(global-mem.north west)+(0.0,1.0)$)}{south west}
+  \group{group-1}{($(global-mem.north east)+(0.0,1.0)$)}{south east}
+  \content{0}{($(group-0.south)+(0.0,1.0)$)}
+  \content{1}{($(group-1.south)+(0.0,1.0)$)}
+  
+  % Draw host
+  \path (dev.south)+(0.0,-0.5) node[host,anchor=north] (host) {};
+  \node[label,above right,opacity=0.8] at ($(host.south east)+(-2.4,0.15)$) {\sffamily\bfseries\Large{Host}};
+  \memory{host-mem}{($(host.south)+(0.0,0.95)$)}{YellowOrange!70}{Host Memory}
+
+  % Draw arrows
+  \draw[bus] (global-mem.south) -- (host-mem.north);
+  \draw[bus] (group-0.south) -- (group-0.south |- global-mem.north);
+  \draw[bus] (group-1.south) -- (group-1.south |- global-mem.north);
+
+\end{tikzpicture}
+\caption{OpenCL abstract memory model.}
+\label{fig:memory-model}
+\end{figure}

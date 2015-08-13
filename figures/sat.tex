@@ -1,0 +1,71 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\xcell{0.9cm}
+  \def\ycell{0.9cm}
+  \def\satshift{9.6cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.5pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=4pt,shorten >=4pt,line width=2.5pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4) + 0.5}
+      \pgfmathsetmacro\ly{int(\li/#4) + 0.5}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(\lx*\xcell,-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % ===========================================================================
+
+  % Input array =================================
+  
+  % Draw background
+  \table{0}{(0,0)}{8}{8}{}[draw=none,fill=Emerald!50]
+  % Draw areas of interest
+  \table{1}{(0,0)}{6}{5}{}[draw=none,xscale=0.997,yscale=0.997,append after command={\pgfextra \draw[draw=none,fill=NavyBlue!50,opacity=0.5] (\tikzlastnode.north) [rounded corners=0pt] -| (\tikzlastnode.east) [rounded corners=0pt] |- (\tikzlastnode.south) [rounded corners=0pt] -| (\tikzlastnode.west) [rounded corners=5pt] |- (\tikzlastnode.north); \endpgfextra}]
+  \table{2}{(0,0)}{3}{2}{}[draw=none,xscale=0.985,yscale=0.978,append after command={\pgfextra \draw[draw=none,fill=Yellow!50,opacity=0.5] (\tikzlastnode.north) [rounded corners=0pt] -| (\tikzlastnode.east) [rounded corners=0pt] |- (\tikzlastnode.south) [rounded corners=0pt] -| (\tikzlastnode.west) [rounded corners=5pt] |- (\tikzlastnode.north); \endpgfextra}]
+  \table{3}{(3*\xcell,0)}{3}{2}{}[draw=none,sharp corners,xscale=0.99,yscale=0.99,fill=RedOrange!50]
+  \table{4}{(0,-2*\ycell)}{3}{3}{}[draw=none,sharp corners,xscale=0.99,yscale=0.99,fill=Plum!50]
+  \draw[draw=none,pattern=north west lines,opacity=0.3] (3*\xcell,-2*\ycell) rectangle ++(3*\xcell,-3*\ycell);
+  % Draw table of numbers
+  \table*{5}{(0,0)}{8}{8}{$2$,$7$,$4$,$1$,$8$,$3$,$0$,$3$,$7$,$8$,$2$,$5$,$3$,$8$,$6$,$1$,$0$,$2$,$4$,$6$,$1$,$4$,$7$,$1$,$0$,$2$,$5$,$8$,$3$,$6$,$1$,$9$,$4$,$7$,$2$,$5$,$0$,$1$,$4$,$6$,$5$,$8$,$4$,$2$,$9$,$4$,$1$,$2$,$1$,$7$,$3$,$8$,$4$,$0$,$5$,$9$,$1$,$4$,$2$,$6$,$7$,$3$,$8$,$0$}
+
+  % Summed area table ===========================
+
+  % Draw background
+  \table{6}{(\satshift,0)}{8}{8}{}[draw=none,fill=Emerald!50]
+  % Draw cells of interest
+  \table{11}{(\satshift+2*\xcell,-1*\ycell)}{1}{1}{}[draw=none,sharp corners,shift={(-0.01,0.01)},scale=0.99,fill=White,opacity=0.35]
+  \table{12}{(\satshift+5*\xcell,-1*\ycell)}{1}{1}{}[draw=none,sharp corners,shift={(-0.01,0.01)},scale=0.99,fill=White,opacity=0.35]
+  \table{13}{(\satshift+2*\xcell,-4*\ycell)}{1}{1}{}[draw=none,sharp corners,shift={(-0.01,0.01)},scale=0.99,fill=White,opacity=0.35]
+  \table{14}{(\satshift+5*\xcell,-4*\ycell)}{1}{1}{}[draw=none,sharp corners,shift={(-0.01,0.01)},scale=0.99,fill=White,opacity=0.35]
+  % Draw table of numbers
+  \table*{15}{(\satshift,0)}{8}{8}{$2$,$9$,$13$,$14$,$22$,$25$,$25$,$28$,$9$,$24$,$30$,$36$,$47$,$58$,$64$,$68$,$9$,$26$,$36$,$48$,$60$,$75$,$88$,$93$,$9$,$28$,$43$,$63$,$78$,$99$,$113$,$127$,$13$,$39$,$56$,$81$,$96$,$118$,$136$,$156$,$18$,$52$,$73$,$100$,$124$,$150$,$169$,$191$,$19$,$60$,$84$,$119$,$147$,$173$,$197$,$228$,$20$,$65$,$91$,$132$,$167$,$196$,$228$,$259$}
+
+  % Draw transition line
+  \draw[to] (table-5.east) -- node[above,yshift=2] {\sffamily\bfseries\Large SAT} (table-15.west);
+
+\end{tikzpicture}
+\caption{Representation of a SAT application.}
+\label{fig:sat}
+\end{figure}

@@ -1,0 +1,64 @@
+%!TEX root = ../main.tex
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[scale=1.0,transform shape]
+
+  % Parameters
+  \def\xcell{1.0cm}
+  \def\ycell{0.7cm}
+  \def\radius{0.2cm}
+
+  % Styles
+  \tikzstyle{table}=[draw,anchor=north west,thick,rounded corners]
+  \tikzstyle{line}=[dashed,line width=0.7pt]
+  \tikzstyle{to}=[->,>=stealth',shorten <=1pt,shorten >=0.5pt,line width=1.5pt,red,cap=round]
+
+  % \table*{<id>}{<pos>}{<x-dim>}{<y-dim>}{<cell-lalbel-list>}[<optional-arguments>]
+  % The star (*) argument enables drawing of lines between the cells
+  \DeclareDocumentCommand \table { s m m m m m O{} }{%
+    \path #3 node[table,minimum width=#4*\xcell,minimum height=#5*\ycell,#7] (table-#2) {};
+    \IfBooleanT{#1}{%
+      \pgfmathsetmacro\xdim{#4-1}
+      \pgfmathsetmacro\ydim{#5-1}
+      \ifnumgreater{#5}{1}{%
+        \foreach \y in {1,...,\ydim}
+          \draw[line,Black!70] ($(table-#2.north west)+(0,-\y*\ycell)$) -- ++(#4*\xcell,0);}{}
+      \ifnumgreater{#4}{1}{%
+        \foreach \x in {1,...,\xdim}
+          \draw[line,Black!70] ($(table-#2.north west)+(\x*\xcell,0)$) -- ++(0,-#5*\ycell);}{}
+    }
+    \foreach[count=\li from 0] \l in {#6}{%
+      \pgfmathsetmacro\lx{mod(\li,#4)}
+      \pgfmathsetmacro\ly{int(\li/#4)}
+      \node (cell-label-#2-\li) at ($(table-#2.north west)+(0.5*\xcell+\lx*\xcell,-0.5*\ycell-\ly*\ycell)$) {\l};
+    }
+  }
+
+  % ===========================================================================
+ 
+  % Draw tables
+  \table*{0}{(0.0, 0.0)}{4}{1}{}[fill=Emerald!50]
+  \table*{1}{(0.0,-5.0)}{1}{1}{}[fill=Emerald!50]
+
+  % Draw operators
+  \foreach \y/\p in {1/0.22,2/0.50,3/0.78}{%
+    \path ($(table-0.south west)!\p!(table-1.north west)+(0.5*\xcell,0)$) node (center) {};
+    \draw[line width=1.5pt,fill=Yellow!80] (center) circle (\radius) node[draw=none,shape=circle,inner sep=4pt] (op-\y) {};
+    \draw[line width=1.5pt] ($(center)+(180:\radius)$) -- ($(center)+(0:\radius)$);
+    \draw[line width=1.5pt] ($(center)+(-90:\radius)$) -- ($(center)+(90:\radius)$);
+  }
+
+  % Draw arrows
+  \draw[to] ($(table-0.south west)+(0.5*\xcell,0)$) -- (op-1);
+  \draw[to] (op-1) -- (op-2);
+  \draw[to] (op-2) -- (op-3);
+  \draw[to] (op-3) -- ($(table-1.north west)+(0.5*\xcell,0)$);
+  \draw[to] ($(table-0.south west)+(0.5*\xcell+1*\xcell,0)$) -- ($(op-1)+(35:{\radius+0.3mm})$);
+  \draw[to] ($(table-0.south west)+(0.5*\xcell+2*\xcell,0)$) -- ($(op-2)+(35:{\radius+0.3mm})$);
+  \draw[to] ($(table-0.south west)+(0.5*\xcell+3*\xcell,0)$) -- ($(op-3)+(35:{\radius+0.3mm})$);
+
+\end{tikzpicture}
+\caption{Representation of serial reduce.}
+\label{fig:reduce-serial}
+\end{figure}
