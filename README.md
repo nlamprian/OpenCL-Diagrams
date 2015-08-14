@@ -14,6 +14,6 @@
 Feel free to suggest modifications and contribute your own designs.
 
 # Use
-Include the `-shell-escape` option in order to compile the document.
+Include the `-shell-escape` option (required by minted) in order to compile the main document.
 
-To export the figures in image files check out [output/output.bash](https://github.com/pAIgn10/OpenCL-Diagrams/blob/master/output/output.bash).
+To export the figures in image files check out [output/img.bash](https://github.com/pAIgn10/OpenCL-Diagrams/blob/master/output/img.bash).
